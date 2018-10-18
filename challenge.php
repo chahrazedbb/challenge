@@ -7,6 +7,12 @@
 	    exit;
 	}
 
+	if (isset($_POST['Logout'])) { 
+
+		session_destroy();
+		header('location: login.php');
+	}
+
 	$idm = $_SESSION['user_id'] ;
 
 	require 'conn.php' ;
@@ -107,12 +113,23 @@
 			    width: 55%
 
 			}
+			button {
+				padding: 5px 10px;
+			    border-radius: 2px;
+			    cursor: pointer;
+			    float: right;
+			    background-color: white; 
+			    color: #008CBA;
+			    border: 2px solid #008CBA; 
+			}
 		</style>
 		
 	</head>
 	<body>
 		<div>
-			<a href="logout.php" style="float: right;">Logout</a>
+			<form method="post" action="">
+				<button type='submit' name="Logout"  onclick="resetValues()">Logout</button>
+			</form>
 		    <p>
 		        Your task is to come up with many ideas as you can to address the problem below. Be as specific as possible in your responses.
 		    </p>
@@ -138,14 +155,14 @@
 			    <p>
 			        please describe your ideas as follows :
 			    </p>
-				<form method="post" action="insertion.php">
-					<input type="hidden" name="idm" value="<?php echo $idm; ?>" >
+				<form method="post" action="insertion.php" id="myform">
+					<input type="hidden" name="idm" value="<?php echo $idm; ?>">
 				    <div class="row">
 				     	<div class="col-25">
 				    		<label for="fname">What is it about :</label>
 				      	</div>
 				    	<div class="col-75">
-				        	<input type="text" name="what" id="what" required >
+				        	<input type="text" name="what" id="what" required onkeyup='saveValue(this);'>
 				      	</div>
 				    </div>
 				    <div class="row">
@@ -153,7 +170,7 @@
 				        	<label for="lname">How it works :</label>
 				      	</div>
 				      	<div class="col-75">
-				        	<input type="text" name="how" id="how" required >
+				        	<input type="text" name="how" id="how" required onkeyup='saveValue(this);'>
 				      	</div>
 				    </div>
 				    <div class="row">
@@ -161,7 +178,7 @@
 				        	<label for="country">When it works :</label>
 				      	</div>
 				      	<div class="col-75">
-				        	<input type="text" name="when" id="when" required >
+				        	<input type="text" name="when" id="when" required onkeyup='saveValue(this);'>
 				      	</div>
 				    </div>
 					</div>
@@ -211,6 +228,8 @@
 		</div>
 
 <script type="text/javascript">
+
+// timer 
 var timeInMinutes = 10;
 var currentTime = Date.parse(new Date());
 var deadline = new Date(currentTime + timeInMinutes*60*1000);
@@ -237,6 +256,7 @@ function initializeClock(id, endtime){
         secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
         if(t.total<=0){
             window.location.href="challenge.php";
+            resetValues();
         }
 
     }
@@ -247,7 +267,8 @@ function initializeClock(id, endtime){
 initializeClock('clockdiv', deadline);
 
 
-// to calculate duration between ideas
+
+// to calculate duration between ideas and reset the form 
 function getTime(){
     var t = Date.parse(deadline) - Date.parse(new Date());
     var t2 = 10*60*1000 - t ;
@@ -255,8 +276,40 @@ function getTime(){
     var minutes = Math.floor( (t2/1000/60) % 60 );
     alert("you have spent : " + minutes + ":" + seconds);
     document.getElementById("duration").value = minutes + ":" + seconds ;
+    document.getElementById("myform").submit();
+    resetValues();
 }
  
+
+// keeping inputs values after refresh 
+     function saveValue(e){
+        var id = e.id;  
+        var val = e.value;  
+        localStorage.setItem(id, val);  }
+
+    function getSavedValue  (v){
+        if (localStorage.getItem(v) == null) {
+            return "";
+        }
+        return localStorage.getItem(v);
+    }
+
+    function resetValues(){
+
+    	document.getElementById("what").value = "";  
+	    document.getElementById("how").value = "";  
+	    document.getElementById("when").value = "";
+
+	    localStorage.setItem('what', '');
+	    localStorage.setItem('how', '');
+	    localStorage.setItem('when', '');
+
+    }
+
+    document.getElementById("what").value = getSavedValue("what");   
+    document.getElementById("how").value = getSavedValue("how");  
+    document.getElementById("when").value = getSavedValue("when");  
+</script>
 </script>
 	</body>
 </html>
