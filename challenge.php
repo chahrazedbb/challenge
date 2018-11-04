@@ -183,7 +183,7 @@
 				    </div>
 					</div>
 
-					<input type="hidden" name="duration" id="duration">
+					<input type="hidden" name="duration" id="duration" onkeyup='saveValue(this);'>
 
 					<div class="row">
 				    	<input type="reset" value="Reset">
@@ -232,8 +232,13 @@
 // timer 
 var timeInMinutes = 10;
 var currentTime = Date.parse(new Date());
-var deadline = new Date(currentTime + timeInMinutes*60*1000);
+var deadline;
 
+if(localStorage.getItem("deadline") != 0) {
+    deadline = new Date(localStorage.getItem("deadline"));
+} else {
+	deadline = new Date(currentTime + timeInMinutes*60*1000);
+}
 
 function getTimeRemaining(endtime){
     var t = Date.parse(endtime) - Date.parse(new Date());
@@ -257,8 +262,10 @@ function initializeClock(id, endtime){
         if(t.total<=0){
             window.location.href="challenge.php";
             resetValues();
-        }
+        }else{
 
+			localStorage.setItem("deadline", deadline);
+        }
     }
     updateClock(); 
     var timeinterval = setInterval(updateClock,1000);
@@ -266,16 +273,22 @@ function initializeClock(id, endtime){
 
 initializeClock('clockdiv', deadline);
 
-
-
 // to calculate duration between ideas and reset the form 
 function getTime(){
     var t = Date.parse(deadline) - Date.parse(new Date());
     var t2 = 10*60*1000 - t ;
     var seconds = Math.floor( (t2/1000) % 60 );
     var minutes = Math.floor( (t2/1000/60) % 60 );
+
+    if (minutes < 10) {
+        minutes = "0" + minutes;
+    }
+    if (seconds < 10) {
+        seconds = "0" + seconds;
+    }    
     alert("you have spent : " + minutes + ":" + seconds);
     document.getElementById("duration").value = minutes + ":" + seconds ;
+    //reset form after submission
     document.getElementById("myform").submit();
     resetValues();
 }
@@ -303,12 +316,16 @@ function getTime(){
 	    localStorage.setItem('what', '');
 	    localStorage.setItem('how', '');
 	    localStorage.setItem('when', '');
+	    deadline = 0 ;
+	    localStorage.setItem("deadline", deadline);
+
 
     }
 
     document.getElementById("what").value = getSavedValue("what");   
     document.getElementById("how").value = getSavedValue("how");  
     document.getElementById("when").value = getSavedValue("when");  
+
 </script>
 </script>
 	</body>
